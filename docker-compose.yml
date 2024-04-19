@@ -1,0 +1,23 @@
+version: '3'
+services:
+  emqx1:
+    image: emqx
+    container_name: emqx-master
+    restart: unless-stopped
+    environment:
+    - "EMQX_NODE_NAME=woker-5@45.77.250.173"
+    - "EMQX_CLUSTER__DISCOVERY_STRATEGY=static"
+    - "EMQX_CLUSTER__STATIC__SEEDS=[woker-1@45.32.114.30, woker-2@139.180.152.194, woker-3@45.76.159.222, woker-4@149.28.147.235, woker-5@45.77.250.173]"
+    healthcheck:
+      test: ["CMD", "/opt/emqx/bin/emqx", "ctl", "status"]
+      interval: 5s
+      timeout: 25s
+      retries: 5
+    ports:
+      - 1883:1883
+      - 18083:18083
+      - "5360-5380"
+      - "4360-4380"
+    volumes:
+      - ./data:/opt/emqx/data
+      - ./log:/opt/emqx/log

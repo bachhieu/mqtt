@@ -10,8 +10,8 @@ import (
 )
 
 const (
-	loop = 50
-	mess = 100
+	loop = 4000
+	mess = 1
 )
 
 // Hàm callback khi kết nối thành công
@@ -26,9 +26,7 @@ func onConnect(client mqtt.Client) {
 	// time.Sleep(5 * time.Second)
 	// client.Unsubscribe("test")
 	// fmt.Println("-----------------------")
-	// client.Subscribe("phone-tracker/topic/noti/5653a8e114929c2a-c04a13", 0, func(c mqtt.Client, m mqtt.Message) {
-	// 	fmt.Println("phone-tracker/topic/noti/5653a8e114929c2a-c04a13 ", string(m.Payload()))
-	// })
+
 }
 
 // Hàm callback khi nhận được thông điệp
@@ -104,14 +102,12 @@ func main() {
 	// client.Disconnect(250)
 }
 
-var servers = []string{"45.77.248.75"}
-
 func connect(i int) (mqtt.Client, error) {
 	// Tạo một client MQTT
-	// clientOptions := mqtt.NewClientOptions().AddBroker("mqtt://host.docker.internal:1884")
 	// clientOptions := mqtt.NewClientOptions().AddBroker("mqtt://ex1.mq.volio.vn:1883")
-	// clientOptions := mqtt.NewClientOptions().AddBroker("mqtt://45.77.248.75:1883")
-	clientOptions := mqtt.NewClientOptions().AddBroker("mqtt://45.77.248.75:1883")
+	// clientOptions := mqtt.NewClientOptions().AddBroker("mqtt://ex-test.mq.volio.vn:1884")
+	// clientOptions := mqtt.NewClientOptions().AddBroker("mqtt://host.docker.internal:1883")
+	clientOptions := mqtt.NewClientOptions().AddBroker("mqtt://149.28.147.235:1883")
 	clientOptions.ConnectTimeout = 30 * time.Second
 	clientOptions.SetClientID(fmt.Sprintf("hieubv-%v", i))
 	clientOptions.SetUsername("hieubv")
@@ -125,44 +121,48 @@ func connect(i int) (mqtt.Client, error) {
 
 	// Tạo MQTT client
 	client := mqtt.NewClient(clientOptions)
-
 	if token := client.Connect(); token.Wait() && token.Error() != nil {
 		return nil, token.Error()
 	}
+	if i < 50 {
+		client.Subscribe("volio/dol/#", 2, func(c mqtt.Client, m mqtt.Message) {
+			fmt.Println(i)
+		})
+	}
 	fmt.Printf("Connected to MQTT broker : %v \n", i)
 
-	timeStart := time.Now().Unix()
-	for a := 0; a <= mess; a++ {
-		// 	// time.Sleep(10 * time.Millisecond)
+	// timeStart := time.Now().Unix()
+	// for a := 0; a <= mess; a++ {
+	// 	// time.Sleep(10 * time.Millisecond)
 
-		start := time.Now().Unix()
-		// 	// token := client.Publish(fmt.Sprintf("volio/dol/test/%v", i), 2, true, fmt.Sprintf("send message index : %v - time start : %v -  %vs", a, start, start-timeStart))
-		// 	// token := client.Publish(fmt.Sprintf("volio/dol/test/%v", i), 1, true, fmt.Sprintf("send message index : %v - time start : %v -  %vs", a, start, start-timeStart))
-		// 	// token := client.Publish(fmt.Sprintf("volio/dol/test/%v", i), 0, true, fmt.Sprintf("send message index : %v - time start : %v -  %vs", a, start, start-timeStart))
-		// 	// token := client.Publish(fmt.Sprintf("volio/dol/test/%v", i), 0, true, fmt.Sprintf("timestamp: %v - total:%v-------::::%s", time.Now().Local(), start-timeStart, m))
-		// 	// token := client.Publish(fmt.Sprintf("volio/dol/test/%v", 1), 1, true, fmt.Sprintf("timestamp: %v - total:%v-------::::%s", time.Now().Local(), start-timeStart, m))
-		// 	// client.Publish(fmt.Sprintf("volio/dol/test/%v", i), 2, true, fmt.Sprintf("timestamp: %v - total:%v-------::::%s", time.Now().Local(), start-timeStart, m))
-		startT := time.Now()
-		token := client.Publish(fmt.Sprintf("volio/dol/test/%v", i), 2, true, fmt.Sprintf("timestamp: %v - total:%v-------::::%s", time.Now().Local(), start-timeStart, m))
-		token.Wait()
-		// go pushMess(a, timeStart, client)
+	// 	start := time.Now().Unix()
+	// 	// token := client.Publish(fmt.Sprintf("volio/dol/test/%v", i), 2, true, fmt.Sprintf("send message index : %v - time start : %v -  %vs", a, start, start-timeStart))
+	// 	// token := client.Publish(fmt.Sprintf("volio/dol/test/%v", i), 1, true, fmt.Sprintf("send message index : %v - time start : %v -  %vs", a, start, start-timeStart))
+	// 	// token := client.Publish(fmt.Sprintf("volio/dol/test/%v", i), 0, true, fmt.Sprintf("send message index : %v - time start : %v -  %vs", a, start, start-timeStart))
+	// 	// token := client.Publish(fmt.Sprintf("volio/dol/test/%v", i), 0, true, fmt.Sprintf("timestamp: %v - total:%v-------::::%s", time.Now().Local(), start-timeStart, m))
+	// 	// token := client.Publish(fmt.Sprintf("volio/dol/test/%v", 1), 1, true, fmt.Sprintf("timestamp: %v - total:%v-------::::%s", time.Now().Local(), start-timeStart, m))
+	// 	// client.Publish(fmt.Sprintf("volio/dol/test/%v", i), 2, true, fmt.Sprintf("timestamp: %v - total:%v-------::::%s", time.Now().Local(), start-timeStart, m))
+	// 	startT := time.Now()
+	// 	token := client.Publish(fmt.Sprintf("volio/dol/test/%v", i), 2, true, fmt.Sprintf("timestamp: %v - total:%v-------::::%s", time.Now().Local(), start-timeStart, m))
+	// 	token.Wait()
+	// 	// go pushMess(a, timeStart, client)
 
-		elapsed := time.Since(startT)
-		if elapsed > time.Second {
-			fmt.Println("aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa")
-			fmt.Println("                                                a")
-			fmt.Println("                                                a")
-			fmt.Printf("Thời gian thực thi: %s                   a\n", elapsed)
-			fmt.Println("                                                a")
-			fmt.Println("                                                a")
-			fmt.Println("aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa")
-		}
-		if a == mess {
-			fmt.Println("--------------------------------")
-			fmt.Println("send total message: ", mess, "index ", i, ":", start, "-", start-timeStart)
-			fmt.Println("************************")
-		}
-	}
+	// 	elapsed := time.Since(startT)
+	// 	if elapsed > time.Second {
+	// 		fmt.Println("aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa")
+	// 		fmt.Println("                                                a")
+	// 		fmt.Println("                                                a")
+	// 		fmt.Printf("Thời gian thực thi: %s                           a\n", elapsed)
+	// 		fmt.Println("                                                a")
+	// 		fmt.Println("                                                a")
+	// 		fmt.Println("aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa")
+	// 	}
+	// 	if a == mess {
+	// 		fmt.Println("--------------------------------")
+	// 		fmt.Println("send message index ", i, ":", start, "-", start-timeStart)
+	// 		fmt.Println("************************")
+	// 	}
+	// }
 
 	return client, nil
 }
